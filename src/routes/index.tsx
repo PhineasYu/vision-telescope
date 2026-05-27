@@ -319,12 +319,16 @@ function Index() {
               className="flex gap-3 overflow-x-auto pb-2"
               style={{ scrollbarWidth: "none" }}
             >
-              {PARTIES.map((p) =>
+              {PARTIES.map((p, i) =>
                 consumedId === p.id ? null : (
                   <PartyCard
                     key={p.id}
                     party={p}
                     getLensRect={getLensRect}
+                    onDragMove={onDragMove}
+                    onDragSettle={resetBrightness}
+                    hintTick={i === 0 ? hintTick : 0}
+                    onInteract={() => setHintTick((n) => n + 1)}
                     onConsume={() => {
                       pulseLens();
                       setSelectedParty(p);
@@ -334,6 +338,7 @@ function Index() {
                   />
                 ),
               )}
+
             </motion.div>
           )}
         </AnimatePresence>
