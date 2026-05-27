@@ -136,7 +136,7 @@ function Index() {
           >
             {isPostSelect && selectedParty ? (
               <>
-                Viewing <span className="mx-1 text-[#3a3631]">:</span>{" "}
+                Viewing <span className="mx-1 text-[#8A847A]/30">:</span>{" "}
                 <span style={{ color: selectedParty.color }}>
                   {selectedParty.name}
                 </span>
@@ -144,7 +144,7 @@ function Index() {
               </>
             ) : (
               <>
-                Kikaren <span className="mx-1 text-[#3a3631]">/</span> See the future
+                Kikaren <span className="mx-1 text-[#8A847A]/30">/</span> See the future
               </>
             )}
           </motion.p>
