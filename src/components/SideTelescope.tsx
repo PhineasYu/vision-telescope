@@ -42,11 +42,12 @@ export function SideTelescope({ glowColor = null }: Props) {
       <defs>
         <linearGradient id="brass-vert" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#8B7340" />
-          <stop offset="20%" stopColor="#E2C684" />
+          <stop offset="22%" stopColor="#F4E4B8" />
           <stop offset="50%" stopColor="#C9A961" />
           <stop offset="80%" stopColor="#8B7340" />
-          <stop offset="100%" stopColor="#5a4a25" />
+          <stop offset="100%" stopColor="#1C1A17" />
         </linearGradient>
+
 
         <radialGradient id="objective-lens" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor={glowColor ?? "#F4E4B8"} stopOpacity={glowColor ? 1 : 0.4} />
