@@ -80,10 +80,10 @@ function Index() {
     return () => clearTimeout(t);
   }, [phase, selectedParty]);
 
-  const headerText =
-    phase === "viewing" || phase === "screen3"
-      ? `Viewing: ${selectedParty?.name ?? ""}'s 2030 Järva`
-      : "Kikaren / See the future";
+  const isViewing = phase === "viewing" || phase === "screen3";
+  const headerKey = isViewing ? "viewing" : "idle";
+
+
 
   return (
     <main className="relative mx-auto flex min-h-[100dvh] w-full max-w-[390px] flex-col overflow-hidden">
