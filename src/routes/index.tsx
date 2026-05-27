@@ -379,12 +379,17 @@ function VisionPortal({ party }: { party: Party }) {
           />
           <motion.div
             initial={{ opacity: 0, scale: 1.08 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-            className="h-full w-full"
+            animate={{ opacity: 1, scale: 1, rotate: 360 }}
+            transition={{
+              opacity: { duration: 0.6, delay: 0.2, ease: "easeOut" },
+              scale: { duration: 0.6, delay: 0.2, ease: "easeOut" },
+              rotate: { duration: 60, repeat: Infinity, ease: "linear" },
+            }}
+            className="flex h-full w-full items-center justify-center"
           >
             <VisionFor partyId={party.id} color={party.color} />
           </motion.div>
+
         </div>
       </motion.div>
 
