@@ -88,6 +88,30 @@ function Index() {
     });
   };
 
+  /**
+   * Haptic-style visual feedback: as a card approaches the lens center,
+   * brightness ramps from 1 → 1.6. Reset back to 1 when not dragging.
+   */
+  const onDragMove = (cardCx: number, cardCy: number) => {
+    const lens = getLensRect();
+    if (!lens) return;
+    const d = Math.hypot(cardCx - lens.cx, cardCy - lens.cy);
+    // 0 at lens center, 1 at ~2× the radius (no influence beyond that)
+    const t = Math.max(0, Math.min(1, 1 - d / (lens.radius * 2)));
+    lensBrightness.set(1 + t * 0.6);
+  };
+  const resetBrightness = () => {
+    animate(lensBrightness, 1, { duration: 0.25, ease: "easeOut" });
+  };
+
+  // Idle hint: after 4s of no interaction on screen 1, bounce the first card.
+  const [hintTick, setHintTick] = useState(0);
+  useEffect(() => {
+    if (phase !== "idle") return;
+    const t = setTimeout(() => setHintTick((n) => n + 1), 4000);
+    return () => clearTimeout(t);
+  }, [phase, consumedId, hintTick]);
+
   // rotating → viewing
   useEffect(() => {
     if (phase !== "rotating") return;
@@ -113,6 +137,8 @@ function Index() {
     return () => clearTimeout(t);
   }, [phase]);
 
+
+
   const isPostSelect =
     phase === "viewing" || phase === "screen3" || phase === "returning";
   const showFrontTele = phase === "idle" || phase === "rotating";
@@ -136,7 +162,7 @@ function Index() {
           >
             {isPostSelect && selectedParty ? (
               <>
-                Viewing <span className="mx-1 text-[#3a3631]">:</span>{" "}
+                Viewing <span className="mx-1 text-[#8A847A]/30">:</span>{" "}
                 <span style={{ color: selectedParty.color }}>
                   {selectedParty.name}
                 </span>
@@ -144,7 +170,7 @@ function Index() {
               </>
             ) : (
               <>
-                Kikaren <span className="mx-1 text-[#3a3631]">/</span> See the future
+                Kikaren <span className="mx-1 text-[#8A847A]/30">/</span> See the future
               </>
             )}
           </motion.p>
@@ -293,12 +319,16 @@ function Index() {
               className="flex gap-3 overflow-x-auto pb-2"
               style={{ scrollbarWidth: "none" }}
             >
-              {PARTIES.map((p) =>
+              {PARTIES.map((p, i) =>
                 consumedId === p.id ? null : (
                   <PartyCard
                     key={p.id}
                     party={p}
                     getLensRect={getLensRect}
+                    onDragMove={onDragMove}
+                    onDragSettle={resetBrightness}
+                    hintTick={i === 0 ? hintTick : 0}
+                    onInteract={() => setHintTick((n) => n + 1)}
                     onConsume={() => {
                       pulseLens();
                       setSelectedParty(p);
@@ -308,6 +338,7 @@ function Index() {
                   />
                 ),
               )}
+
             </motion.div>
           )}
         </AnimatePresence>
@@ -315,10 +346,11 @@ function Index() {
 
       {/* Disclaimer */}
       <footer className="px-6 pb-6 pt-2 text-center">
-        <p className="font-mono-k text-[8px] uppercase text-[#5a544a]">
+        <p className="font-mono-k text-[8px] uppercase text-[#8A847A]/60">
           Based on party platform 2026.{" "}
-          <span className="text-[#3a3631]">·</span> Not an official forecast.
+          <span className="text-[#8A847A]/40">·</span> Not an official forecast.
         </p>
+
       </footer>
     </main>
   );
@@ -356,9 +388,10 @@ function VisionPortal({ party }: { party: Party }) {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         style={{
           background:
-            "radial-gradient(circle at 30% 25%, #E2C684 0%, #C9A961 35%, #8B7340 75%, #5a4a25 100%)",
+            "radial-gradient(circle at 30% 25%, #F4E4B8 0%, #C9A961 32%, #8B7340 78%, #1C1A17 100%)",
           padding: 6,
         }}
+
       >
         {/* Clipped illustration */}
         <div
@@ -377,12 +410,17 @@ function VisionPortal({ party }: { party: Party }) {
           />
           <motion.div
             initial={{ opacity: 0, scale: 1.08 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-            className="h-full w-full"
+            animate={{ opacity: 1, scale: 1, rotate: 360 }}
+            transition={{
+              opacity: { duration: 0.6, delay: 0.2, ease: "easeOut" },
+              scale: { duration: 0.6, delay: 0.2, ease: "easeOut" },
+              rotate: { duration: 60, repeat: Infinity, ease: "linear" },
+            }}
+            className="flex h-full w-full items-center justify-center"
           >
             <VisionFor partyId={party.id} color={party.color} />
           </motion.div>
+
         </div>
       </motion.div>
 
@@ -423,17 +461,41 @@ function PartyCard({
   party,
   getLensRect,
   onConsume,
+  onDragMove,
+  onDragSettle,
+  hintTick,
+  onInteract,
 }: {
   party: Party;
   getLensRect: () => { cx: number; cy: number; radius: number } | null;
   onConsume: () => void;
+  onDragMove: (cardCx: number, cardCy: number) => void;
+  onDragSettle: () => void;
+  /** When this counter increments and is > 0, play the nudge animation. */
+  hintTick: number;
+  /** Called on any user touch to cancel the idle hint timer. */
+  onInteract: () => void;
 }) {
   const controls = useAnimationControls();
   const cardRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
 
+  // Idle hint: bounce up 8px and back when hintTick increments past 0.
+  useEffect(() => {
+    if (hintTick <= 0) return;
+    controls.start({
+      y: [0, -8, 0],
+      transition: { duration: 0.9, ease: "easeInOut", times: [0, 0.4, 1] },
+    });
+  }, [hintTick, controls]);
+
+  const handleDrag = (_: unknown, info: { point: { x: number; y: number } }) => {
+    onDragMove(info.point.x, info.point.y);
+  };
+
   const handleDragEnd = async () => {
     setDragging(false);
+    onDragSettle();
     const el = cardRef.current;
     const lens = getLensRect();
     if (!el || !lens) return;
@@ -474,7 +536,12 @@ function PartyCard({
       drag
       dragMomentum={false}
       dragElastic={0.6}
-      onDragStart={() => setDragging(true)}
+      onPointerDown={onInteract}
+      onDragStart={() => {
+        onInteract();
+        setDragging(true);
+      }}
+      onDrag={handleDrag}
       onDragEnd={handleDragEnd}
       animate={controls}
       whileDrag={{ scale: 1.06, zIndex: 40 }}
@@ -485,8 +552,10 @@ function PartyCard({
         backgroundColor: party.color,
         zIndex: dragging ? 40 : 1,
         touchAction: "none",
+        borderRadius: 0,
       }}
     >
+
       <span
         className="font-serif-it absolute left-2 top-0 text-[64px] leading-none text-white"
         style={{ letterSpacing: "-0.02em" }}
