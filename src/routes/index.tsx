@@ -357,9 +357,10 @@ function VisionPortal({ party }: { party: Party }) {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         style={{
           background:
-            "radial-gradient(circle at 30% 25%, #E2C684 0%, #C9A961 35%, #8B7340 75%, #5a4a25 100%)",
+            "radial-gradient(circle at 30% 25%, #F4E4B8 0%, #C9A961 32%, #8B7340 78%, #1C1A17 100%)",
           padding: 6,
         }}
+
       >
         {/* Clipped illustration */}
         <div
