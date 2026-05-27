@@ -461,17 +461,41 @@ function PartyCard({
   party,
   getLensRect,
   onConsume,
+  onDragMove,
+  onDragSettle,
+  hintTick,
+  onInteract,
 }: {
   party: Party;
   getLensRect: () => { cx: number; cy: number; radius: number } | null;
   onConsume: () => void;
+  onDragMove: (cardCx: number, cardCy: number) => void;
+  onDragSettle: () => void;
+  /** When this counter increments and is > 0, play the nudge animation. */
+  hintTick: number;
+  /** Called on any user touch to cancel the idle hint timer. */
+  onInteract: () => void;
 }) {
   const controls = useAnimationControls();
   const cardRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
 
+  // Idle hint: bounce up 8px and back when hintTick increments past 0.
+  useEffect(() => {
+    if (hintTick <= 0) return;
+    controls.start({
+      y: [0, -8, 0],
+      transition: { duration: 0.9, ease: "easeInOut", times: [0, 0.4, 1] },
+    });
+  }, [hintTick, controls]);
+
+  const handleDrag = (_: unknown, info: { point: { x: number; y: number } }) => {
+    onDragMove(info.point.x, info.point.y);
+  };
+
   const handleDragEnd = async () => {
     setDragging(false);
+    onDragSettle();
     const el = cardRef.current;
     const lens = getLensRect();
     if (!el || !lens) return;
@@ -512,7 +536,12 @@ function PartyCard({
       drag
       dragMomentum={false}
       dragElastic={0.6}
-      onDragStart={() => setDragging(true)}
+      onPointerDown={onInteract}
+      onDragStart={() => {
+        onInteract();
+        setDragging(true);
+      }}
+      onDrag={handleDrag}
       onDragEnd={handleDragEnd}
       animate={controls}
       whileDrag={{ scale: 1.06, zIndex: 40 }}
@@ -523,8 +552,10 @@ function PartyCard({
         backgroundColor: party.color,
         zIndex: dragging ? 40 : 1,
         touchAction: "none",
+        borderRadius: 0,
       }}
     >
+
       <span
         className="font-serif-it absolute left-2 top-0 text-[64px] leading-none text-white"
         style={{ letterSpacing: "-0.02em" }}
