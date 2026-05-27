@@ -91,12 +91,12 @@ export function SideTelescope({ glowColor = null }: Props) {
           y1={cy + eyeH / 2 - 3}
           x2={eyeX + eyeW}
           y2={cy + eyeH / 2 - 3}
-          stroke="#5a4a25"
+          stroke="#1C1A17"
           strokeWidth="0.5"
           opacity="0.7"
         />
         {/* Eyepiece cap ring */}
-        <rect x={eyeX} y={cy - eyeH / 2} width="3" height={eyeH} fill="#5a4a25" />
+        <rect x={eyeX} y={cy - eyeH / 2} width="3" height={eyeH} fill="#1C1A17" />
       </g>
 
       {/* Middle — longer, wider tube */}
@@ -109,7 +109,7 @@ export function SideTelescope({ glowColor = null }: Props) {
           fill="url(#brass-vert)"
         />
         {/* Junction collar at left */}
-        <rect x={midX} y={cy - midH / 2} width="4" height={midH} fill="#5a4a25" />
+        <rect x={midX} y={cy - midH / 2} width="4" height={midH} fill="#1C1A17" />
         {/* Three thin depth lines */}
         <line
           x1={midX}
@@ -134,7 +134,7 @@ export function SideTelescope({ glowColor = null }: Props) {
           y1={cy + midH / 2 - 4}
           x2={midX + midW}
           y2={cy + midH / 2 - 4}
-          stroke="#5a4a25"
+          stroke="#1C1A17"
           strokeWidth="0.5"
           opacity="0.7"
         />
@@ -158,7 +158,7 @@ export function SideTelescope({ glowColor = null }: Props) {
           fill="url(#brass-vert)"
         />
         {/* Left junction collar */}
-        <rect x={objX} y={cy - objH / 2} width="5" height={objH} fill="#5a4a25" />
+        <rect x={objX} y={cy - objH / 2} width="5" height={objH} fill="#1C1A17" />
         {/* Right rim */}
         <rect
           x={objX + objW - 6}
@@ -182,7 +182,7 @@ export function SideTelescope({ glowColor = null }: Props) {
           y1={cy + objH / 2 - 4}
           x2={objX + objW}
           y2={cy + objH / 2 - 4}
-          stroke="#5a4a25"
+          stroke="#1C1A17"
           strokeWidth="0.5"
           opacity="0.7"
         />
