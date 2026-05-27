@@ -88,6 +88,30 @@ function Index() {
     });
   };
 
+  /**
+   * Haptic-style visual feedback: as a card approaches the lens center,
+   * brightness ramps from 1 → 1.6. Reset back to 1 when not dragging.
+   */
+  const onDragMove = (cardCx: number, cardCy: number) => {
+    const lens = getLensRect();
+    if (!lens) return;
+    const d = Math.hypot(cardCx - lens.cx, cardCy - lens.cy);
+    // 0 at lens center, 1 at ~2× the radius (no influence beyond that)
+    const t = Math.max(0, Math.min(1, 1 - d / (lens.radius * 2)));
+    lensBrightness.set(1 + t * 0.6);
+  };
+  const resetBrightness = () => {
+    animate(lensBrightness, 1, { duration: 0.25, ease: "easeOut" });
+  };
+
+  // Idle hint: after 4s of no interaction on screen 1, bounce the first card.
+  const [hintTick, setHintTick] = useState(0);
+  useEffect(() => {
+    if (phase !== "idle") return;
+    const t = setTimeout(() => setHintTick((n) => n + 1), 4000);
+    return () => clearTimeout(t);
+  }, [phase, consumedId, hintTick]);
+
   // rotating → viewing
   useEffect(() => {
     if (phase !== "rotating") return;
@@ -112,6 +136,8 @@ function Index() {
     }, 750);
     return () => clearTimeout(t);
   }, [phase]);
+
+
 
   const isPostSelect =
     phase === "viewing" || phase === "screen3" || phase === "returning";
