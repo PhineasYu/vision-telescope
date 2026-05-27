@@ -1,33 +1,37 @@
-import { motion, type MotionValue } from "motion/react";
+import { motion, useMotionTemplate, type MotionValue } from "motion/react";
 import { forwardRef } from "react";
 
 type Props = {
   size?: number;
-  glow?: MotionValue<number> | number;
+  /** 1 = idle, >1 = pulsing brighter */
+  brightness?: MotionValue<number>;
 };
 
 /**
- * Front-view telescope: we look down the barrel.
- * The forwarded ref is attached to the inner lens circle so the parent
- * can read its bounding box to test "did the card drop on the lens?".
+ * Front-view telescope. We look down the barrel.
+ * The forwarded ref attaches to the inner lens so the parent can read
+ * its bounding rect for hit-testing the card drop.
  */
 export const Telescope = forwardRef<HTMLDivElement, Props>(function Telescope(
-  { size = 240, glow = 1 },
+  { size = 240, brightness },
   lensRef,
 ) {
-  const lensSize = size * 0.7; // inner glass
+  const lensSize = size * 0.7;
+  const filter = brightness
+    ? useMotionTemplate`brightness(${brightness}) saturate(${brightness})`
+    : undefined;
 
   return (
     <div
       className="relative flex items-center justify-center"
       style={{ width: size, height: size }}
     >
-      {/* Soft drop glow — radial, no hard shadow */}
+      {/* Soft brass drop glow */}
       <div
         aria-hidden
         className="pointer-events-none absolute"
         style={{
-          inset: -40,
+          inset: -50,
           background:
             "radial-gradient(closest-side, rgba(201,169,97,0.18), rgba(201,169,97,0) 70%)",
           filter: "blur(20px)",
@@ -45,7 +49,7 @@ export const Telescope = forwardRef<HTMLDivElement, Props>(function Telescope(
         }}
       />
 
-      {/* Middle ring — darker brass */}
+      {/* Middle ring */}
       <div
         className="absolute rounded-full"
         style={{
@@ -58,27 +62,19 @@ export const Telescope = forwardRef<HTMLDivElement, Props>(function Telescope(
         }}
       />
 
-      {/* Inner lens (drop target) with animated brightness */}
+      {/* Inner lens (drop target) */}
       <motion.div
         ref={lensRef}
         className="absolute rounded-full"
         style={{
           width: lensSize,
           height: lensSize,
-          // @ts-expect-error CSS var
-          "--glow": typeof glow === "number" ? glow : undefined,
           background:
             "radial-gradient(circle at 50% 50%, #F4E4B8 0%, #C9A961 18%, #3a2f1a 55%, #1C1A17 100%)",
           boxShadow:
             "inset 0 0 28px rgba(0,0,0,0.85), inset 0 0 6px rgba(244,228,184,0.35)",
+          filter,
         }}
-        // Pulse: brightness + saturation
-        animate={
-          typeof glow === "number"
-            ? { filter: `brightness(${glow}) saturate(${glow})` }
-            : undefined
-        }
-        style-glow={undefined as never}
       >
         {/* Glass reflection crescent — upper-left */}
         <svg
@@ -88,19 +84,19 @@ export const Telescope = forwardRef<HTMLDivElement, Props>(function Telescope(
           aria-hidden
         >
           <defs>
-            <radialGradient id="crescent" cx="32%" cy="28%" r="40%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.35" />
+            <radialGradient id="kik-crescent" cx="32%" cy="28%" r="42%">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.32" />
               <stop offset="60%" stopColor="#FFFFFF" stopOpacity="0.05" />
               <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
             </radialGradient>
-            <clipPath id="lensClip">
+            <clipPath id="kik-lens-clip">
               <circle cx="50" cy="50" r="50" />
             </clipPath>
           </defs>
-          <g clipPath="url(#lensClip)">
+          <g clipPath="url(#kik-lens-clip)">
             <path
-              d="M 8 38 Q 22 8 58 10 Q 30 14 16 44 Q 10 52 8 38 Z"
-              fill="url(#crescent)"
+              d="M 8 40 Q 22 8 60 10 Q 30 14 16 46 Q 10 54 8 40 Z"
+              fill="url(#kik-crescent)"
             />
           </g>
         </svg>
