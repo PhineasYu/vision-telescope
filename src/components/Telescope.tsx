@@ -83,7 +83,7 @@ export const Telescope = forwardRef<HTMLDivElement, Props>(function Telescope(
         animate={{ scale: [1, 1.03, 1] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
       >
-        {/* Glass reflection crescent — upper-left */}
+        {/* Glass texture — refraction rings, aperture blades, crescent + speculars, vignette */}
         <svg
           viewBox="0 0 100 100"
           className="absolute inset-0 h-full w-full"
@@ -92,19 +92,57 @@ export const Telescope = forwardRef<HTMLDivElement, Props>(function Telescope(
         >
           <defs>
             <radialGradient id="kik-crescent" cx="32%" cy="28%" r="42%">
-              <stop offset="0%" stopColor="#F5F1E8" stopOpacity="0.32" />
-              <stop offset="60%" stopColor="#F5F1E8" stopOpacity="0.05" />
+              <stop offset="0%" stopColor="#F5F1E8" stopOpacity="0.42" />
+              <stop offset="60%" stopColor="#F5F1E8" stopOpacity="0.06" />
               <stop offset="100%" stopColor="#F5F1E8" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="kik-lower-glow" cx="68%" cy="78%" r="38%">
+              <stop offset="0%" stopColor="#C9A961" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#C9A961" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="kik-vignette" cx="50%" cy="50%" r="50%">
+              <stop offset="62%" stopColor="#1C1A17" stopOpacity="0" />
+              <stop offset="100%" stopColor="#1C1A17" stopOpacity="0.8" />
             </radialGradient>
             <clipPath id="kik-lens-clip">
               <circle cx="50" cy="50" r="50" />
             </clipPath>
           </defs>
           <g clipPath="url(#kik-lens-clip)">
+            {/* Warm reflected brass from below */}
+            <rect width="100" height="100" fill="url(#kik-lower-glow)" />
+
+            {/* Concentric refraction rings */}
+            <circle cx="50" cy="50" r="44" fill="none" stroke="#F4E4B8" strokeOpacity="0.10" strokeWidth="0.4" />
+            <circle cx="50" cy="50" r="36" fill="none" stroke="#F4E4B8" strokeOpacity="0.08" strokeWidth="0.3" />
+            <circle cx="50" cy="50" r="26" fill="none" stroke="#F4E4B8" strokeOpacity="0.12" strokeWidth="0.3" />
+            <circle cx="50" cy="50" r="16" fill="none" stroke="#F4E4B8" strokeOpacity="0.20" strokeWidth="0.4" />
+
+            {/* Aperture blades — six radial lines, like a lens iris */}
+            <g stroke="#1C1A17" strokeOpacity="0.45" strokeWidth="0.35" strokeLinecap="round">
+              <line x1="50" y1="50" x2="50" y2="6" />
+              <line x1="50" y1="50" x2="88" y2="28" />
+              <line x1="50" y1="50" x2="88" y2="72" />
+              <line x1="50" y1="50" x2="50" y2="94" />
+              <line x1="50" y1="50" x2="12" y2="72" />
+              <line x1="50" y1="50" x2="12" y2="28" />
+            </g>
+
+            {/* Primary crescent highlight */}
             <path
               d="M 8 40 Q 22 8 60 10 Q 30 14 16 46 Q 10 54 8 40 Z"
               fill="url(#kik-crescent)"
             />
+
+            {/* Specular dot */}
+            <circle cx="30" cy="26" r="2.4" fill="#F5F1E8" fillOpacity="0.55" />
+            <circle cx="30" cy="26" r="0.9" fill="#F5F1E8" fillOpacity="0.95" />
+
+            {/* Secondary small highlight */}
+            <ellipse cx="68" cy="70" rx="6" ry="2.2" fill="#F4E4B8" fillOpacity="0.18" transform="rotate(-28 68 70)" />
+
+            {/* Inner vignette to deepen the lens well */}
+            <rect width="100" height="100" fill="url(#kik-vignette)" />
           </g>
         </svg>
       </motion.div>
