@@ -93,7 +93,7 @@ function Index() {
       <header className="px-6 pt-8">
         <AnimatePresence mode="wait">
           <motion.p
-            key={headerText}
+            key={headerKey}
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
