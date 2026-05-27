@@ -315,10 +315,11 @@ function Index() {
 
       {/* Disclaimer */}
       <footer className="px-6 pb-6 pt-2 text-center">
-        <p className="font-mono-k text-[8px] uppercase text-[#5a544a]">
+        <p className="font-mono-k text-[8px] uppercase text-[#8A847A]/60">
           Based on party platform 2026.{" "}
-          <span className="text-[#3a3631]">·</span> Not an official forecast.
+          <span className="text-[#8A847A]/40">·</span> Not an official forecast.
         </p>
+
       </footer>
     </main>
   );
